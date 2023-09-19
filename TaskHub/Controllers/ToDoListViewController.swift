@@ -21,6 +21,41 @@ final class ToDoListViewController: UITableViewController {
     }
     
     // MARK: - Private Methods
+    private func setupTableView() {
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+        
+    }
+}
+
+// MARK: - UITableViewDataSource
+extension ToDoListViewController {
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        itemArray.count
+    }
+    
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
+        var content = cell.defaultContentConfiguration()
+        
+        content.text = itemArray[indexPath.row]
+        cell.contentConfiguration = content
+        return cell
+    }
+}
+
+// MARK: - UITableViewDelegate
+extension ToDoListViewController {
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
+        let cell = tableView.cellForRow(at: indexPath)
+        cell?.accessoryType = cell?.accessoryType == .checkmark ? .none : .checkmark
+    
+        tableView.deselectRow(at: indexPath, animated: true)
+    }
+}
+
+// MARK: - NavigationBar
+extension ToDoListViewController {
     private func setupNavigationBar() {
         title = "TaskHub"
         
@@ -42,30 +77,5 @@ final class ToDoListViewController: UITableViewController {
         navigationController?.navigationBar.standardAppearance = navBarAppearance
         navigationController?.navigationBar.scrollEdgeAppearance = navBarAppearance
     }
-    
-    private func setupTableView() {
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
-    }
-}
-
-// MARK: - UITableViewDataSource
-extension ToDoListViewController {
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        itemArray.count
-    }
-    
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-        var content = cell.defaultContentConfiguration()
-        
-        content.text = itemArray[indexPath.row]
-        
-        cell.contentConfiguration = content
-        return cell
-    }
-}
-
-// MARK: - UITableViewDelegate
-extension ToDoListViewController {
 }
 
