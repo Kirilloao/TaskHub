@@ -11,7 +11,7 @@ import SnapKit
 final class ToDoListViewController: UITableViewController {
     
     // MARK: - Private Properties
-    private var itemArray = ["Find Mike", "Buy Eggos", "Destroy Demogorgon"]
+    private var itemArray = [Item]()
     
     private let defaults = UserDefaults.standard
     
@@ -21,9 +21,21 @@ final class ToDoListViewController: UITableViewController {
         setupNavigationBar()
         setupTableView()
         
-        if let items = defaults.array(forKey: "TodoListArray") as? [String] {
-            itemArray = items
-        }
+        let newItem = Item()
+        newItem.title = "Find Mike"
+        itemArray.append(newItem)
+        
+        let newItem2 = Item()
+        newItem2.title = "Buy Eggos"
+        itemArray.append(newItem2)
+        
+        let newItem3 = Item()
+        newItem3.title = "Destroy Demogorgon"
+        itemArray.append(newItem3)
+        
+//        if let items = defaults.array(forKey: "TodoListArray") as? [String] {
+//            itemArray = items
+//        }
     }
     
     // MARK: - Private Methods
@@ -42,7 +54,12 @@ extension ToDoListViewController {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
         var content = cell.defaultContentConfiguration()
         
-        content.text = itemArray[indexPath.row]
+        let item = itemArray[indexPath.row]
+        
+        content.text = item.title
+        
+        cell.accessoryType = item.isDone ? .checkmark : .none
+
         cell.contentConfiguration = content
         return cell
     }
@@ -52,8 +69,9 @@ extension ToDoListViewController {
 extension ToDoListViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
-        let cell = tableView.cellForRow(at: indexPath)
-        cell?.accessoryType = cell?.accessoryType == .checkmark ? .none : .checkmark
+        itemArray[indexPath.row].isDone = !itemArray[indexPath.row].isDone
+        
+        tableView.reloadData()
         
         tableView.deselectRow(at: indexPath, animated: true)
     }
@@ -104,7 +122,10 @@ extension ToDoListViewController {
         
         let action = UIAlertAction(title: "Add item", style: .default) { action in
             if let text = textField.text, textField.text != nil {
-                self.itemArray.append(text)
+                
+                let newItem = Item()
+                newItem.title = text
+                self.itemArray.append(newItem)
                 
                 self.defaults.set(self.itemArray, forKey: "TodoListArray")
                 

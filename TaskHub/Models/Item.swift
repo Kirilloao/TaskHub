@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Item{
-    var name: String
-    var isDone: Bool
+class Item {
+    var title: String = ""
+    var isDone: Bool = false
 }
