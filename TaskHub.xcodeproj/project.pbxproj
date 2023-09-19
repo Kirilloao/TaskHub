@@ -12,7 +12,6 @@
 		3CB28A7E2AB8D5C0000E2AEB /* ToDoListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CB28A7D2AB8D5C0000E2AEB /* ToDoListViewController.swift */; };
 		3CB28A832AB8D5C1000E2AEB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3CB28A822AB8D5C1000E2AEB /* Assets.xcassets */; };
 		3CB28A862AB8D5C1000E2AEB /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3CB28A842AB8D5C1000E2AEB /* LaunchScreen.storyboard */; };
-		3CB28A932AB9903D000E2AEB /* ListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CB28A922AB9903D000E2AEB /* ListView.swift */; };
 		3CB28A962AB99090000E2AEB /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 3CB28A952AB99090000E2AEB /* SnapKit */; };
 /* End PBXBuildFile section */
 
@@ -24,7 +23,6 @@
 		3CB28A822AB8D5C1000E2AEB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		3CB28A852AB8D5C1000E2AEB /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		3CB28A872AB8D5C1000E2AEB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		3CB28A922AB9903D000E2AEB /* ListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -97,7 +95,6 @@
 		3CB28A902AB98DC0000E2AEB /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				3CB28A922AB9903D000E2AEB /* ListView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -185,7 +182,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3CB28A932AB9903D000E2AEB /* ListView.swift in Sources */,
 				3CB28A7E2AB8D5C0000E2AEB /* ToDoListViewController.swift in Sources */,
 				3CB28A7A2AB8D5C0000E2AEB /* AppDelegate.swift in Sources */,
 				3CB28A7C2AB8D5C0000E2AEB /* SceneDelegate.swift in Sources */,
