@@ -11,19 +11,24 @@ import SnapKit
 final class ToDoListViewController: UITableViewController {
     
     // MARK: - Private Properties
-    private let itemArray = ["Find Mike", "Buy Eggos", "Destroy Demogorgon"]
+    private var itemArray = ["Find Mike", "Buy Eggos", "Destroy Demogorgon"]
+    
+    private let defaults = UserDefaults.standard
     
     // MARK: - Life Cycle Methods
     override func viewDidLoad() {
         super.viewDidLoad()
         setupNavigationBar()
         setupTableView()
+        
+        if let items = defaults.array(forKey: "TodoListArray") as? [String] {
+            itemArray = items
+        }
     }
     
     // MARK: - Private Methods
     private func setupTableView() {
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
-        
     }
 }
 
@@ -49,7 +54,7 @@ extension ToDoListViewController {
         
         let cell = tableView.cellForRow(at: indexPath)
         cell?.accessoryType = cell?.accessoryType == .checkmark ? .none : .checkmark
-    
+        
         tableView.deselectRow(at: indexPath, animated: true)
     }
 }
@@ -76,6 +81,48 @@ extension ToDoListViewController {
         // меняем цвет в статичном положении и в скролинге
         navigationController?.navigationBar.standardAppearance = navBarAppearance
         navigationController?.navigationBar.scrollEdgeAppearance = navBarAppearance
+        
+        let addButton = UIBarButtonItem(
+            barButtonSystemItem: .add,
+            target: self,
+            action: #selector(addButtonDidTapped)
+        )
+        addButton.tintColor = .white
+    
+        navigationItem.rightBarButtonItem = addButton
+    }
+    
+    @objc private func addButtonDidTapped() {
+
+        var textField = UITextField()
+
+        let alert = UIAlertController(
+            title: "Add New Task",
+            message: "",
+            preferredStyle: .alert
+        )
+        
+        let action = UIAlertAction(title: "Add item", style: .default) { action in
+            if let text = textField.text, textField.text != nil {
+                self.itemArray.append(text)
+                
+                self.defaults.set(self.itemArray, forKey: "TodoListArray")
+                
+                self.tableView.insertRows(
+                    at: [IndexPath(row: self.itemArray.count - 1, section: 0)],
+                    with: .automatic
+                )
+            }
+        }
+        
+        alert.addTextField { alertTextField in
+            alertTextField.placeholder = "Create new item"
+            textField = alertTextField
+
+        }
+        
+        alert.addAction(action)
+        present(alert, animated: true, completion: nil)
     }
 }
 
