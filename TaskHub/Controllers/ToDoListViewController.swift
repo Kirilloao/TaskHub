@@ -7,40 +7,93 @@
 
 import UIKit
 import SnapKit
+import CoreData
 
 final class ToDoListViewController: UITableViewController {
     
+    // MARK: - Private UI Properties
+    private lazy var searchController: UISearchController = {
+        var searchController = UISearchController(searchResultsController: nil)
+        searchController.searchBar.tintColor = .black
+        searchController.searchBar.backgroundColor = .white
+        searchController.searchBar.delegate = self
+        return searchController
+    }()
+    
     // MARK: - Private Properties
     private var itemArray = [Item]()
-    
-    private let defaults = UserDefaults.standard
+    private let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
     // MARK: - Life Cycle Methods
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         setupNavigationBar()
         setupTableView()
         
-        let newItem = Item()
-        newItem.title = "Find Mike"
-        itemArray.append(newItem)
+        loadItems()
+    }
+    
+    // MARK: - Private Actions
+    @objc private func addButtonDidTapped() {
+        var textField = UITextField()
         
-        let newItem2 = Item()
-        newItem2.title = "Buy Eggos"
-        itemArray.append(newItem2)
+        let alert = UIAlertController(
+            title: "Add New Task",
+            message: "",
+            preferredStyle: .alert
+        )
         
-        let newItem3 = Item()
-        newItem3.title = "Destroy Demogorgon"
-        itemArray.append(newItem3)
+        let action = UIAlertAction(title: "Add item", style: .default) { action in
+            if let text = textField.text, textField.text != nil {
+                
+                
+                let newItem = Item(context: self.context)
+                newItem.title = text
+                newItem.isDone = false
+                
+                self.itemArray.append(newItem)
+                
+                // сохраняем данные
+                self.tableView.insertRows(
+                    at: [IndexPath(row: self.itemArray.count - 1, section: 0)],
+                    with: .automatic
+                )
+                self.saveItems()
+            }
+        }
         
-//        if let items = defaults.array(forKey: "TodoListArray") as? [String] {
-//            itemArray = items
-//        }
+        alert.addTextField { alertTextField in
+            alertTextField.placeholder = "Create new item"
+            textField = alertTextField
+        }
+        
+        alert.addAction(action)
+        present(alert, animated: true)
     }
     
     // MARK: - Private Methods
     private func setupTableView() {
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+    }
+}
+
+// MARK: - Model Manupulation Methods
+extension ToDoListViewController {
+    private func saveItems() {
+        do {
+            try context.save()
+        } catch {
+            print("Error saving context \(error)")
+        }
+    }
+    
+    private func loadItems(with request: NSFetchRequest<Item> = Item.fetchRequest()) {
+        do {
+            itemArray = try context.fetch(request)
+        } catch {
+            print("Error fetching data from context \(error)")
+        }
     }
 }
 
@@ -59,7 +112,7 @@ extension ToDoListViewController {
         content.text = item.title
         
         cell.accessoryType = item.isDone ? .checkmark : .none
-
+        
         cell.contentConfiguration = content
         return cell
     }
@@ -69,7 +122,13 @@ extension ToDoListViewController {
 extension ToDoListViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
+        
+        //        context.delete(itemArray[indexPath.row])
+        //        itemArray.remove(at: indexPath.row)
+        
+        
         itemArray[indexPath.row].isDone = !itemArray[indexPath.row].isDone
+        saveItems()
         
         tableView.reloadData()
         
@@ -80,7 +139,7 @@ extension ToDoListViewController {
 // MARK: - NavigationBar
 extension ToDoListViewController {
     private func setupNavigationBar() {
-        title = "TaskHub"
+        title = "Items"
         
         let navBarAppearance = UINavigationBarAppearance()
         
@@ -106,44 +165,37 @@ extension ToDoListViewController {
             action: #selector(addButtonDidTapped)
         )
         addButton.tintColor = .white
-    
+        
         navigationItem.rightBarButtonItem = addButton
-    }
-    
-    @objc private func addButtonDidTapped() {
-
-        var textField = UITextField()
-
-        let alert = UIAlertController(
-            title: "Add New Task",
-            message: "",
-            preferredStyle: .alert
-        )
         
-        let action = UIAlertAction(title: "Add item", style: .default) { action in
-            if let text = textField.text, textField.text != nil {
-                
-                let newItem = Item()
-                newItem.title = text
-                self.itemArray.append(newItem)
-                
-                self.defaults.set(self.itemArray, forKey: "TodoListArray")
-                
-                self.tableView.insertRows(
-                    at: [IndexPath(row: self.itemArray.count - 1, section: 0)],
-                    with: .automatic
-                )
-            }
-        }
-        
-        alert.addTextField { alertTextField in
-            alertTextField.placeholder = "Create new item"
-            textField = alertTextField
-
-        }
-        
-        alert.addAction(action)
-        present(alert, animated: true, completion: nil)
+        // устанавливаем searchBar
+        navigationItem.searchController = searchController
+        navigationItem.hidesSearchBarWhenScrolling = false
     }
 }
 
+// MARK: - UISearchBarDelegate
+extension ToDoListViewController: UISearchBarDelegate {
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        let request: NSFetchRequest<Item> = Item.fetchRequest()
+        
+        request.predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
+        
+        request.sortDescriptors  = [NSSortDescriptor(key: "title", ascending: true)]
+        
+        loadItems(with: request)
+        
+        tableView.reloadData()
+    }
+    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        if searchBar.text?.count == 0 {
+            loadItems()
+            tableView.reloadData()
+            
+            DispatchQueue.main.async {
+                searchBar.resignFirstResponder()
+            }
+        }
+    }
+}
