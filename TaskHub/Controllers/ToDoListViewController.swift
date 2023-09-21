@@ -141,24 +141,24 @@ extension ToDoListViewController {
     private func setupNavigationBar() {
         title = "Items"
         
-        let navBarAppearance = UINavigationBarAppearance()
-        
-        //устанавливаем цвет для navigationBar
-        navBarAppearance.backgroundColor = UIColor(
-            red: 21/255,
-            green: 101/255,
-            blue: 192/255,
-            alpha: 194/255
-        )
-        
-        // меняем цвет для текста
-        navBarAppearance.titleTextAttributes = [.foregroundColor: UIColor.white]
-        navBarAppearance.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
-        
-        // меняем цвет в статичном положении и в скролинге
-        navigationController?.navigationBar.standardAppearance = navBarAppearance
-        navigationController?.navigationBar.scrollEdgeAppearance = navBarAppearance
-        
+//        let navBarAppearance = UINavigationBarAppearance()
+//        
+//        //устанавливаем цвет для navigationBar
+//        navBarAppearance.backgroundColor = UIColor(
+//            red: 21/255,
+//            green: 101/255,
+//            blue: 192/255,
+//            alpha: 194/255
+//        )
+//        
+//        // меняем цвет для текста
+//        navBarAppearance.titleTextAttributes = [.foregroundColor: UIColor.white]
+//        navBarAppearance.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
+//        
+//        // меняем цвет в статичном положении и в скролинге
+//        navigationController?.navigationBar.standardAppearance = navBarAppearance
+//        navigationController?.navigationBar.scrollEdgeAppearance = navBarAppearance
+//        
         let addButton = UIBarButtonItem(
             barButtonSystemItem: .add,
             target: self,
