@@ -16,12 +16,12 @@ final class CategoryViewController: UITableViewController {
     
     //создаем массив Сategory
     private var categoryArray = [Category]()
-
+    
     // MARK: - Life Cycle Methods
     override func viewDidLoad() {
         super.viewDidLoad()
         setupNavigationBar()
-
+        
         // регистрируем ячейку
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "categoryCell")
         
@@ -31,7 +31,7 @@ final class CategoryViewController: UITableViewController {
     
     // MARK: - Private Actions
     @objc private func addBarButtonDidTapped() {
-       showAlert()
+        showAlert()
     }
     
     // MARK: - Private Methods
@@ -93,7 +93,7 @@ extension CategoryViewController {
         var content = cell.defaultContentConfiguration()
         
         content.text = category.name
-
+        
         cell.contentConfiguration = content
         
         return cell
@@ -102,9 +102,21 @@ extension CategoryViewController {
 
 // MARK: - UITableViewDelegate
 extension CategoryViewController {
+    //отрабатываем когда мы нажимаем на ячейку
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         // снимаем выделение ячейки после нажатия
         tableView.deselectRow(at: indexPath, animated: true)
+        
+        // создаем экземпляр класса на который будем делать переход
+        let toDoListVC = ToDoListViewController()
+        
+        // передаем выбранную категорию в свойство которое находится в toDoListVC
+        toDoListVC.selectedCategory = categoryArray[indexPath.row]
+        
+        // выполняем переход по навигации
+        navigationController?.pushViewController(toDoListVC, animated: true)
+        
+        
     }
 }
 

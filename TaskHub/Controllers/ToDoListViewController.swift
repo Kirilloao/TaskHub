@@ -11,6 +11,22 @@ import CoreData
 
 final class ToDoListViewController: UITableViewController {
     
+    // MARK: - Public Properties
+    /* Вычисляемое свойство, didSet выполняется каждый раз когда значение свойства
+     меняется. LoadItem() будет загружать только те обьекты которые отоносятся
+     к этой категории.
+     */
+    var selectedCategory: Category? {
+        didSet {
+            loadItems()
+        }
+    }
+    
+    // MARK: - Private Properties
+    private var itemArray = [Item]()
+    
+    private let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+    
     // MARK: - Private UI Properties
     private lazy var searchController: UISearchController = {
         var searchController = UISearchController(searchResultsController: nil)
@@ -20,18 +36,12 @@ final class ToDoListViewController: UITableViewController {
         return searchController
     }()
     
-    // MARK: - Private Properties
-    private var itemArray = [Item]()
-    private let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
-    
     // MARK: - Life Cycle Methods
     override func viewDidLoad() {
         super.viewDidLoad()
         
         setupNavigationBar()
         setupTableView()
-        
-        loadItems()
     }
     
     // MARK: - Private Actions
@@ -51,6 +61,7 @@ final class ToDoListViewController: UITableViewController {
                 let newItem = Item(context: self.context)
                 newItem.title = text
                 newItem.isDone = false
+                newItem.parentCategory = self.selectedCategory
                 
                 self.itemArray.append(newItem)
                 
@@ -88,7 +99,37 @@ extension ToDoListViewController {
         }
     }
     
-    private func loadItems(with request: NSFetchRequest<Item> = Item.fetchRequest()) {
+    private func loadItems(with request: NSFetchRequest<Item> = Item.fetchRequest(), predicate: NSPredicate? = nil) {
+        /*
+         Предикат будет использоваться для выбора всех элементов (Item) из Core Data,
+         у которых родительская категория (parentCategory) имеет атрибут name,
+         который соответствует имени выбранной категории (selectedCategory).
+         Это позволяет фильтровать элементы в соответствии с выбранной категорией.
+         */
+        let categoryPredicate = NSPredicate(format: "parentCategory.name MATCHES %@", selectedCategory!.name!)
+        
+        /*
+         Если пользователь ввел текст для поиска, то predicate будет непустым,
+         и код внутри блока if будет выполнен.
+         
+         Созданный составной предикат будет выполняться по "И" (AND),
+         то есть объекты должны удовлетворять обоим предикатам, чтобы быть
+         включенными в результаты запроса.
+         
+         Если additionalPredicate отсутствует (то есть пользователь не выполнил
+         поиск или не ввел текст для поиска), то в блоке else будет установлен
+         только предикат categoryPredicate, который фильтрует объекты по категории
+         без каких-либо дополнительных условий.
+         
+         */
+        if let additionalPredicate = predicate {
+            request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [categoryPredicate, additionalPredicate])
+        } else {
+            request.predicate = categoryPredicate
+        }
+        
+
+        // загружаем данные из СoreData в массив
         do {
             itemArray = try context.fetch(request)
         } catch {
@@ -140,25 +181,7 @@ extension ToDoListViewController {
 extension ToDoListViewController {
     private func setupNavigationBar() {
         title = "Items"
-        
-//        let navBarAppearance = UINavigationBarAppearance()
-//        
-//        //устанавливаем цвет для navigationBar
-//        navBarAppearance.backgroundColor = UIColor(
-//            red: 21/255,
-//            green: 101/255,
-//            blue: 192/255,
-//            alpha: 194/255
-//        )
-//        
-//        // меняем цвет для текста
-//        navBarAppearance.titleTextAttributes = [.foregroundColor: UIColor.white]
-//        navBarAppearance.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
-//        
-//        // меняем цвет в статичном положении и в скролинге
-//        navigationController?.navigationBar.standardAppearance = navBarAppearance
-//        navigationController?.navigationBar.scrollEdgeAppearance = navBarAppearance
-//        
+ 
         let addButton = UIBarButtonItem(
             barButtonSystemItem: .add,
             target: self,
@@ -177,14 +200,35 @@ extension ToDoListViewController {
 // MARK: - UISearchBarDelegate
 extension ToDoListViewController: UISearchBarDelegate {
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        
+        // создаем запрос для получения объектов типо item из CoreData
         let request: NSFetchRequest<Item> = Item.fetchRequest()
         
-        request.predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
+        /*
+         Создаем предикат который создаем условие для фильтрации данных.
+         Мы ищем объекты у которых атрибут title содержит текст введенный
+         в searchBar.
+         */
+        let predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
         
+        /*
+         Устанавливаем предикат для запроса. Это означает что запрос будет
+         фильтровать объекты на основе условия в предикате.
+         */
+        request.predicate = predicate
+        
+        /*
+         Устанавливаем сортировку для запроса. Указываем что результаты запроса
+         должны быть отсортированы по атрибуту title в возрастающем порядке.
+         */
         request.sortDescriptors  = [NSSortDescriptor(key: "title", ascending: true)]
         
-        loadItems(with: request)
+        /*
+         загружаем элементы из СoreData с учетом заданого запроса и предиката.
+         */
+        loadItems(with: request, predicate: predicate)
         
+        // обновляем таблицу
         tableView.reloadData()
     }
     
