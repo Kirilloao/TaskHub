@@ -6,50 +6,40 @@
 //
 
 import UIKit
-import CoreData
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
-
+    
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
+        let navBarAppearance = UINavigationBarAppearance()
+        
+        // Устанавливаем цвет для navigationBar
+        navBarAppearance.backgroundColor = UIColor(
+            red: 21/255,
+            green: 101/255,
+            blue: 192/255,
+            alpha: 194/255
+        )
+        
+        // Меняем цвет для текста
+        navBarAppearance.titleTextAttributes = [.foregroundColor: UIColor.white]
+        navBarAppearance.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
+        
+        // Меняем цвет в статичном положении и в скроллинге
+        UINavigationBar.appearance().standardAppearance = navBarAppearance
+        UINavigationBar.appearance().scrollEdgeAppearance = navBarAppearance
+        
+        // меняем цвет кнопки назад
+        UINavigationBar.appearance().tintColor = .white
         
         return true
+        
     }
-      
+    
+    // сохраняем все изменения при выходе из приложения
     func applicationWillTerminate(_ application: UIApplication) {
-        self.saveContext()
+        DataManager.shared.saveContext()
     }
-
-
-    // MARK: - Core Data stack
-
-    lazy var persistentContainer: NSPersistentContainer = {
-
-        let container = NSPersistentContainer(name: "DataModel")
-        container.loadPersistentStores(completionHandler: { (storeDescription, error) in
-            if let error = error as NSError? {
-
-                fatalError("Unresolved error \(error), \(error.userInfo)")
-            }
-        })
-        return container
-    }()
-
-    // MARK: - Core Data Saving support
-
-    func saveContext () {
-        let context = persistentContainer.viewContext
-        if context.hasChanges {
-            do {
-                try context.save()
-            } catch {
-
-                let nserror = error as NSError
-                fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
-            }
-        }
-    }
-
 }
 

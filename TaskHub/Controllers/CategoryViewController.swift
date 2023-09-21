@@ -12,18 +12,16 @@ final class CategoryViewController: UITableViewController {
     
     // MARK: - Private Properties
     // создаем обьект контекста для работы с базой данных
-    private let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+    private let dataManager = DataManager.shared
     
     //создаем массив Сategory
-    private var categoryArray = [Category]()
+    private var categories = [Category]()
     
     // MARK: - Life Cycle Methods
     override func viewDidLoad() {
         super.viewDidLoad()
         setupNavigationBar()
-        
-        // регистрируем ячейку
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "categoryCell")
+        setupTableView()
         
         // загружаем обекты из СoreData в массив categoryArray
         loadItems()
@@ -32,6 +30,17 @@ final class CategoryViewController: UITableViewController {
     // MARK: - Private Actions
     @objc private func addBarButtonDidTapped() {
         showAlert()
+    }
+    
+    // MARK: - DataManager Methods
+    private func save(text: String) {
+        self.dataManager.create(objectType: Category.self, with: text) { category in
+            self.categories.append(category)
+            self.tableView.insertRows(
+                at: [IndexPath(row: self.categories.count - 1, section: 0)],
+                with: .automatic
+            )
+        }
     }
     
     // MARK: - Private Methods
@@ -53,42 +62,37 @@ final class CategoryViewController: UITableViewController {
         let addAction = UIAlertAction(title: "Add category", style: .default) { _ in
             //извлекаем текст из textField и проверям не пустой ли он
             if let text = textField.text, textField.text != nil {
-                // создаем обьект Category в контексте CoreData
-                let category = Category(context: self.context)
-                //добавяем текст из textField в атрибут category
-                category.name = text
-                // добавляем обьект в массив
-                self.categoryArray.append(category)
-                
-                //вставляем новый обьект в список tableView
-                self.tableView.insertRows(
-                    at: [IndexPath(row: self.categoryArray.count - 1, section: 0)],
-                    with: .automatic
-                )
-                
-                // сохраняем изменения в СoreData
-                self.saveItems()
+                self.save(text: text)
             }
         }
-        
-        // добавляем кнопку add в alertController
         alert.addAction(addAction)
         
         //отображаем alertController
         present(alert, animated: true)
+    }
+    
+    private func setupTableView() {
+        // регистрируем ячейку
+        tableView.register(
+            UITableViewCell.self,
+            forCellReuseIdentifier: "categoryCell"
+        )
     }
 }
 
 // MARK: - UITableViewDataSource
 extension CategoryViewController {
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        categoryArray.count
+        categories.count
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "categoryCell", for: indexPath)
+        let cell = tableView.dequeueReusableCell(
+            withIdentifier: "categoryCell",
+            for: indexPath
+        )
         
-        let category = categoryArray[indexPath.row]
+        let category = categories[indexPath.row]
         
         var content = cell.defaultContentConfiguration()
         
@@ -111,30 +115,23 @@ extension CategoryViewController {
         let toDoListVC = ToDoListViewController()
         
         // передаем выбранную категорию в свойство которое находится в toDoListVC
-        toDoListVC.selectedCategory = categoryArray[indexPath.row]
+        toDoListVC.selectedCategory = categories[indexPath.row]
         
         // выполняем переход по навигации
         navigationController?.pushViewController(toDoListVC, animated: true)
-        
-        
     }
 }
 
 // MARK: - Model Manupulation Methods
 extension CategoryViewController {
-    private func saveItems() {
-        do {
-            try context.save()
-        } catch {
-            print("Error saving context \(error)")
-        }
-    }
-    
     private func loadItems(with request: NSFetchRequest<Category> = Category.fetchRequest()) {
-        do {
-            categoryArray = try context.fetch(request)
-        } catch {
-            print("Error fetching data from context \(error)")
+        dataManager.fetchItems(with: request) { (result: Result<[Category], Error>) in
+            switch result {
+            case .success(let categories):
+                self.categories = categories
+            case .failure(let error):
+                print(error)
+            }
         }
     }
 }
@@ -153,24 +150,6 @@ extension CategoryViewController {
         addBarButton.tintColor = .white
         
         navigationItem.rightBarButtonItem = addBarButton
-        
-        let navBarAppearance = UINavigationBarAppearance()
-        
-        //устанавливаем цвет для navigationBar
-        navBarAppearance.backgroundColor = UIColor(
-            red: 21/255,
-            green: 101/255,
-            blue: 192/255,
-            alpha: 194/255
-        )
-        
-        // меняем цвет для текста
-        navBarAppearance.titleTextAttributes = [.foregroundColor: UIColor.white]
-        navBarAppearance.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
-        
-        // меняем цвет в статичном положении и в скролинге
-        navigationController?.navigationBar.standardAppearance = navBarAppearance
-        navigationController?.navigationBar.scrollEdgeAppearance = navBarAppearance
     }
 }
 
