@@ -7,10 +7,9 @@
 
 import UIKit
 import RealmSwift
+import SwipeCellKit
 
 final class CategoryViewController: UITableViewController {
-    
-    let realm = try! Realm()
     
     // MARK: - Private Properties
     /*
@@ -19,6 +18,7 @@ final class CategoryViewController: UITableViewController {
      на тип объектов, которые будут храниться в этой коллекции.
      */
     private var categories: Results<Category>?
+    private let realm = try! Realm()
     
     // MARK: - Life Cycle Methods
     override func viewDidLoad() {
@@ -34,17 +34,6 @@ final class CategoryViewController: UITableViewController {
     @objc private func addBarButtonDidTapped() {
         showAlert()
     }
-    
-    // MARK: - DataManager Methods
-    //    private func save(text: String) {
-    //        self.dataManager.create(objectType: Category.self, with: text) { category in
-    //            self.categories.append(category)
-    //            self.tableView.insertRows(
-    //                at: [IndexPath(row: self.categories.count - 1, section: 0)],
-    //                with: .automatic
-    //            )
-    //        }
-    //    }
     
     // MARK: - Private Methods
     private func showAlert() {
@@ -84,23 +73,22 @@ final class CategoryViewController: UITableViewController {
     private func setupTableView() {
         // регистрируем ячейку
         tableView.register(
-            UITableViewCell.self,
+            SwipeTableViewCell.self,
             forCellReuseIdentifier: "categoryCell"
         )
+        
+        tableView.rowHeight = 80
     }
-}
-
-// MARK: - UITableViewDataSource
-extension CategoryViewController {
+    
+    // MARK: - UITableViewDataSource
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         categories?.count ?? 0
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(
-            withIdentifier: "categoryCell",
-            for: indexPath
-        )
+        
+        // используем фреймворк SwiftCellKit
+        let cell = tableView.dequeueReusableCell(withIdentifier: "categoryCell") as! SwipeTableViewCell
         
         let category = categories?[indexPath.row]
         
@@ -110,12 +98,13 @@ extension CategoryViewController {
         
         cell.contentConfiguration = content
         
+        // используем фреймворк SwiftCellKit
+        cell.delegate = self
+        
         return cell
     }
-}
-
-// MARK: - UITableViewDelegate
-extension CategoryViewController {
+    
+    // MARK: - UITableViewDelegate
     //отрабатываем когда мы нажимаем на ячейку
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         // снимаем выделение ячейки после нажатия
@@ -129,6 +118,39 @@ extension CategoryViewController {
         
         // выполняем переход по навигации
         navigationController?.pushViewController(toDoListVC, animated: true)
+    }
+}
+
+// MARK: - SwipeTableViewCellDelegate
+// используем фреймворк SwiftCellKit
+extension CategoryViewController: SwipeTableViewCellDelegate {
+    func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath, for orientation: SwipeCellKit.SwipeActionsOrientation) -> [SwipeCellKit.SwipeAction]? {
+        guard orientation == .right else { return nil }
+        
+        let deleteAction = SwipeAction(style: .destructive, title: "Delete") { action, indexPath in
+            if let category = self.categories?[indexPath.row] {
+                do {
+                    try self.realm.write {
+                        self.realm.delete(category)
+                    }
+                } catch {
+                    print("Error deleting category, \(error)")
+                }
+//                tableView.reloadData()
+            }
+        }
+        
+        // customize the action appearance
+        deleteAction.image = UIImage(named: "delete-icon")
+        
+        return [deleteAction]
+    }
+    
+    func tableView(_ tableView: UITableView, editActionsOptionsForRowAt indexPath: IndexPath, for orientation: SwipeActionsOrientation) -> SwipeOptions {
+        var options = SwipeOptions()
+        options.expansionStyle = .destructive
+//        options.transitionStyle = .border
+        return options
     }
 }
 

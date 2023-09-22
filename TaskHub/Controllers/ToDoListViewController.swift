@@ -170,6 +170,7 @@ extension ToDoListViewController {
         }
         
         // delete object in Realm
+        
         //        if let item = items?[indexPath.row] {
         //            do {
         //                try realm.write {
