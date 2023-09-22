@@ -33,7 +33,7 @@ final class ToDoListViewController: UITableViewController {
         var searchController = UISearchController(searchResultsController: nil)
         searchController.searchBar.tintColor = .black
         searchController.searchBar.backgroundColor = .white
-        //        searchController.searchBar.delegate = self
+        searchController.searchBar.delegate = self
         return searchController
     }()
     
@@ -78,7 +78,9 @@ final class ToDoListViewController: UITableViewController {
                         try self.realm.write {
                             let newItem = Item()
                             newItem.title = text
+                            newItem.dateCreated = Date()
                             currentCategory.items.append(newItem)
+                            
                         }
                     } catch {
                         print("Error saving new items, \(error)")
@@ -155,14 +157,31 @@ extension ToDoListViewController {
 // MARK: - UITableViewDelegate
 extension ToDoListViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        //        context.delete(itemArray[indexPath.row])
-        //        itemArray.remove(at: indexPath.row)
         
-        //        items[indexPath.row].isDone = !items[indexPath.row].isDone
-        //        dataManager.saveContext()
+        // update object in Realm
+        if let item = items?[indexPath.row] {
+            do {
+                try realm.write {
+                    item.isDone = !item.isDone
+                }
+            } catch {
+                print("Error saveing done status, \(error)")
+            }
+        }
+        
+        // delete object in Realm
+        //        if let item = items?[indexPath.row] {
+        //            do {
+        //                try realm.write {
+        //                    realm.delete(item)
+        //                }
+        //            } catch {
+        //                print("Error saveing done status, \(error)")
+        //            }
+        //        }
+        
         
         tableView.reloadData()
-        
         tableView.deselectRow(at: indexPath, animated: true)
     }
 }
@@ -187,50 +206,39 @@ extension ToDoListViewController {
         
     }
 }
-//
-//// MARK: - UISearchBarDelegate
-//extension ToDoListViewController: UISearchBarDelegate {
-//    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-//
-//        // создаем запрос для получения объектов типо item из CoreData
-//        let request: NSFetchRequest<Item> = Item.fetchRequest()
-//
-//        /*
-//         Создаем предикат который создаем условие для фильтрации данных.
-//         Мы ищем объекты у которых атрибут title содержит текст введенный
-//         в searchBar.
-//         */
-//        let predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
-//
-//        /*
-//         Устанавливаем предикат для запроса. Это означает что запрос будет
-//         фильтровать объекты на основе условия в предикате.
-//         */
-//        request.predicate = predicate
-//
-//        /*
-//         Устанавливаем сортировку для запроса. Указываем что результаты запроса
-//         должны быть отсортированы по атрибуту title в возрастающем порядке.
-//         */
-//        request.sortDescriptors  = [NSSortDescriptor(key: "title", ascending: true)]
-//
-//        /*
-//         загружаем элементы из СoreData с учетом заданого запроса и предиката.
-//         */
-//        loadItems(with: request, predicate: predicate)
-//
-//        // обновляем таблицу
-//        tableView.reloadData()
-//    }
-//
-//    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-//        if searchBar.text?.count == 0 {
-//            loadItems()
-//            tableView.reloadData()
-//
-//            DispatchQueue.main.async {
-//                searchBar.resignFirstResponder()
-//            }
-//        }
-//    }
-//}
+
+// MARK: - UISearchBarDelegate
+extension ToDoListViewController: UISearchBarDelegate {
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        /*
+         Здесь фильтруется коллекция items с использованием метода filter,
+         предоставляемого Realm. Фильтрация выполняется по атрибуту title объектов Item.
+         Условие фильтрации задается строкой формата "title CONTAINS[cd] %@", где:
+         "title" указывает, что фильтрация будет производиться по атрибуту title.
+         "CONTAINS[cd]" - это оператор, который говорит Realm выполнить фильтрацию на основе того, содержит ли значение атрибута title текст из поисковой строки.
+         [cd] означает, что фильтрация должна быть регистро-независимой (case-insensitive) и учитывать диакритические знаки (diacritic-insensitive).
+         searchBar.text! - это текст, введенный в поисковую строку searchBar.
+         
+         .sorted(byKeyPath: "title", ascending: true): После фильтрации, результаты
+         сортируются с использованием метода sorted, предоставляемого Realm.
+         Сортировка производится по атрибуту title в алфавитном порядке (ascending: true),
+         что означает сортировку от A до Z.
+         */
+        //        items = items?.filter("title CONTAINS[cd] %@", searchBar.text!)
+        //            .sorted(byKeyPath: "title", ascending: true)
+        items = items?.filter("title CONTAINS[cd] %@", searchBar.text!)
+            .sorted(byKeyPath: "dateCreated", ascending: true)
+        tableView.reloadData()
+    }
+    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        if searchBar.text?.count == 0 {
+            loadItems()
+            tableView.reloadData()
+            
+            DispatchQueue.main.async {
+                searchBar.resignFirstResponder()
+            }
+        }
+    }
+}
