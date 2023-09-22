@@ -7,9 +7,12 @@
 
 import UIKit
 import SnapKit
-import CoreData
+import RealmSwift
 
 final class ToDoListViewController: UITableViewController {
+    
+    // MARK: - Private Methods
+    private let realm = try! Realm()
     
     // MARK: - Public Properties
     /* Вычисляемое свойство, didSet выполняется каждый раз когда значение свойства
@@ -23,15 +26,14 @@ final class ToDoListViewController: UITableViewController {
     }
     
     // MARK: - Private Properties
-    private var items = [Item]()
-    private let dataManager = DataManager.shared
+    private var items: Results<Item>?
     
     // MARK: - Private UI Properties
     private lazy var searchController: UISearchController = {
         var searchController = UISearchController(searchResultsController: nil)
         searchController.searchBar.tintColor = .black
         searchController.searchBar.backgroundColor = .white
-        searchController.searchBar.delegate = self
+        //        searchController.searchBar.delegate = self
         return searchController
     }()
     
@@ -40,17 +42,6 @@ final class ToDoListViewController: UITableViewController {
         super.viewDidLoad()
         setupNavigationBar()
         setupTableView()
-    }
-    
-    // MARK: - DataManager Methods
-    private func save(text: String, parentCategory: Category) {
-        self.dataManager.create(objectType: Item.self, with: text, parentCategory: parentCategory) { item in
-            self.items.append(item)
-            self.tableView.insertRows(
-                at: [IndexPath(row: self.items.count - 1, section: 0)],
-                with: .automatic
-            )
-        }
     }
     
     // MARK: - Private Actions
@@ -73,8 +64,28 @@ final class ToDoListViewController: UITableViewController {
         )
         
         let action = UIAlertAction(title: "Add item", style: .default) { action in
+            // проверяется значение из textField, не является ли он пустым
             if let text = textField.text, textField.text != nil {
-                self.save(text: text, parentCategory: self.selectedCategory!)
+                // проверяется свойство selectedCategory на nil
+                if let currentCategory = self.selectedCategory {
+                    /*
+                     Cоздается новый объект item, вносятся изменения в его атрибуты,
+                     и созданный объект добавляется к выбранной категории в ее массив
+                     items.(У каждой категории есть массив items)
+                     После чего все сохраняется в базу данных.
+                     */
+                    do {
+                        try self.realm.write {
+                            let newItem = Item()
+                            newItem.title = text
+                            currentCategory.items.append(newItem)
+                        }
+                    } catch {
+                        print("Error saving new items, \(error)")
+                    }
+                }
+                self.tableView.reloadData()
+                //                self.tableView.insertRows(at: [IndexPath(item: items.count - 1, section: 0)], with: .automatic)
             }
         }
         
@@ -90,57 +101,35 @@ final class ToDoListViewController: UITableViewController {
 
 // MARK: - Model Manupulation Methods
 extension ToDoListViewController {
-    private func loadItems(with request: NSFetchRequest<Item> = Item.fetchRequest(), predicate: NSPredicate? = nil) {
+    private func loadItems() {
         /*
-         Предикат будет использоваться для выбора всех элементов (Item) из Core Data,
-         у которых родительская категория (parentCategory) имеет атрибут name,
-         который соответствует имени выбранной категории (selectedCategory).
-         Это позволяет фильтровать элементы в соответствии с выбранной категорией.
+         В данном методе мы пытаемся присвоить массиву items результат сортировки
+         объектов item.
+         
+         Метод sorted(byKeyPath:ascending:)  применяет сортировку к коллекции items.
+         Аргументы метода определяют, как именно будет производиться сортировка.
+         
+         byKeyPath: "title": Это путь к ключевому свойству, по которому будет
+         производиться сортировка. В данном случае, сортировка будет осуществляться
+         по свойству title в каждом объекте Item.
+         
+         ascending: true: Этот аргумент указывает, что сортировка будет в
+         возрастающем порядке (от A до Z).
+         
+         После выполнения этой строки кода, переменная items будет содержать
+         отсортированный массив объектов Item из коллекции items, связанной с
+         selectedCategory. Теперь items будет представлять собой массив объектов
+         Item, упорядоченных по алфавиту и приведенных к порядку "от A до Z" на
+         основе свойства title каждого объекта.
          */
-        let categoryPredicate = NSPredicate(
-            format: "parentCategory.name MATCHES %@",
-            selectedCategory!.name!
-        )
-        
-        /*
-         Если пользователь ввел текст для поиска, то predicate будет непустым,
-         и код внутри блока if будет выполнен.
-         
-         Созданный составной предикат будет выполняться по "И" (AND),
-         то есть объекты должны удовлетворять обоим предикатам, чтобы быть
-         включенными в результаты запроса.
-         
-         Если additionalPredicate отсутствует (то есть пользователь не выполнил
-         поиск или не ввел текст для поиска), то в блоке else будет установлен
-         только предикат categoryPredicate, который фильтрует объекты по категории
-         без каких-либо дополнительных условий.
-         
-         */
-        if let additionalPredicate = predicate {
-            request.predicate = NSCompoundPredicate(
-                andPredicateWithSubpredicates: [categoryPredicate, additionalPredicate]
-            )
-        } else {
-            request.predicate = categoryPredicate
-        }
-        
-        // загружаем данные из СoreData в массив
-        dataManager.fetchItems(with: request) { (result: Result<[Item], Error>)  in
-            switch result {
-                
-            case .success(let items):
-                self.items = items
-            case .failure(let error):
-                print(error)
-            }
-        }
+        items = selectedCategory?.items.sorted(byKeyPath: "title", ascending: true)
     }
 }
 
 // MARK: - UITableViewDataSource
 extension ToDoListViewController {
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        items.count
+        items?.count ?? 1
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -151,11 +140,12 @@ extension ToDoListViewController {
         
         var content = cell.defaultContentConfiguration()
         
-        let item = items[indexPath.row]
-        
-        content.text = item.title
-        
-        cell.accessoryType = item.isDone ? .checkmark : .none
+        if let item = items?[indexPath.row] {
+            content.text = item.title
+            cell.accessoryType = item.isDone ? .checkmark : .none
+        } else {
+            content.text = "No Items Added"
+        }
         
         cell.contentConfiguration = content
         return cell
@@ -168,8 +158,8 @@ extension ToDoListViewController {
         //        context.delete(itemArray[indexPath.row])
         //        itemArray.remove(at: indexPath.row)
         
-        items[indexPath.row].isDone = !items[indexPath.row].isDone
-        dataManager.saveContext()
+        //        items[indexPath.row].isDone = !items[indexPath.row].isDone
+        //        dataManager.saveContext()
         
         tableView.reloadData()
         
@@ -197,50 +187,50 @@ extension ToDoListViewController {
         
     }
 }
-
-// MARK: - UISearchBarDelegate
-extension ToDoListViewController: UISearchBarDelegate {
-    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        
-        // создаем запрос для получения объектов типо item из CoreData
-        let request: NSFetchRequest<Item> = Item.fetchRequest()
-        
-        /*
-         Создаем предикат который создаем условие для фильтрации данных.
-         Мы ищем объекты у которых атрибут title содержит текст введенный
-         в searchBar.
-         */
-        let predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
-        
-        /*
-         Устанавливаем предикат для запроса. Это означает что запрос будет
-         фильтровать объекты на основе условия в предикате.
-         */
-        request.predicate = predicate
-        
-        /*
-         Устанавливаем сортировку для запроса. Указываем что результаты запроса
-         должны быть отсортированы по атрибуту title в возрастающем порядке.
-         */
-        request.sortDescriptors  = [NSSortDescriptor(key: "title", ascending: true)]
-        
-        /*
-         загружаем элементы из СoreData с учетом заданого запроса и предиката.
-         */
-        loadItems(with: request, predicate: predicate)
-        
-        // обновляем таблицу
-        tableView.reloadData()
-    }
-    
-    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        if searchBar.text?.count == 0 {
-            loadItems()
-            tableView.reloadData()
-            
-            DispatchQueue.main.async {
-                searchBar.resignFirstResponder()
-            }
-        }
-    }
-}
+//
+//// MARK: - UISearchBarDelegate
+//extension ToDoListViewController: UISearchBarDelegate {
+//    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+//
+//        // создаем запрос для получения объектов типо item из CoreData
+//        let request: NSFetchRequest<Item> = Item.fetchRequest()
+//
+//        /*
+//         Создаем предикат который создаем условие для фильтрации данных.
+//         Мы ищем объекты у которых атрибут title содержит текст введенный
+//         в searchBar.
+//         */
+//        let predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
+//
+//        /*
+//         Устанавливаем предикат для запроса. Это означает что запрос будет
+//         фильтровать объекты на основе условия в предикате.
+//         */
+//        request.predicate = predicate
+//
+//        /*
+//         Устанавливаем сортировку для запроса. Указываем что результаты запроса
+//         должны быть отсортированы по атрибуту title в возрастающем порядке.
+//         */
+//        request.sortDescriptors  = [NSSortDescriptor(key: "title", ascending: true)]
+//
+//        /*
+//         загружаем элементы из СoreData с учетом заданого запроса и предиката.
+//         */
+//        loadItems(with: request, predicate: predicate)
+//
+//        // обновляем таблицу
+//        tableView.reloadData()
+//    }
+//
+//    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+//        if searchBar.text?.count == 0 {
+//            loadItems()
+//            tableView.reloadData()
+//
+//            DispatchQueue.main.async {
+//                searchBar.resignFirstResponder()
+//            }
+//        }
+//    }
+//}

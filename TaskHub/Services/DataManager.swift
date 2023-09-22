@@ -55,20 +55,20 @@ final class DataManager {
     // MARK: - CRUD
     
     // CREATE
-    func create<T: NSManagedObject>(objectType: T.Type, with name: String, parentCategory: Category? = nil, completion: (T) -> Void) {
-        let object = T(context: viewContext)
-        
-        if let category = object as? Category {
-            category.name = name
-        } else if let item = object as? Item {
-            item.title = name
-            item.isDone = false
-            item.parentCategory = parentCategory
-        }
-        
-        completion(object)
-        saveContext()
-    }
+//    func create<T: NSManagedObject>(objectType: T.Type, with name: String, parentCategory: Category? = nil, completion: (T) -> Void) {
+//        let object = T(context: viewContext)
+//        
+//        if let category = object as? Category {
+//            category.name = name
+//        } else if let item = object as? Item {
+//            item.title = name
+//            item.isDone = false
+//            item.parentCategory = parentCategory
+//        }
+//        
+//        completion(object)
+//        saveContext()
+//    }
     
     // READ
     func fetchItems<T>(with request: NSFetchRequest<T>, completion: (Result<[T], Error>) -> Void) {

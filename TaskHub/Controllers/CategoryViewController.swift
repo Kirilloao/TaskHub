@@ -6,16 +6,19 @@
 //
 
 import UIKit
-import CoreData
+import RealmSwift
 
 final class CategoryViewController: UITableViewController {
     
-    // MARK: - Private Properties
-    // создаем обьект контекста для работы с базой данных
-    private let dataManager = DataManager.shared
+    let realm = try! Realm()
     
-    //создаем массив Сategory
-    private var categories = [Category]()
+    // MARK: - Private Properties
+    /*
+     В данном случае, Results - это тип, предоставляемый Realm, который представляет
+     собой коллекцию объектов определенной модели данных. Category здесь указывает
+     на тип объектов, которые будут храниться в этой коллекции.
+     */
+    private var categories: Results<Category>?
     
     // MARK: - Life Cycle Methods
     override func viewDidLoad() {
@@ -24,7 +27,7 @@ final class CategoryViewController: UITableViewController {
         setupTableView()
         
         // загружаем обекты из СoreData в массив categoryArray
-        loadItems()
+        loadCategories()
     }
     
     // MARK: - Private Actions
@@ -33,15 +36,15 @@ final class CategoryViewController: UITableViewController {
     }
     
     // MARK: - DataManager Methods
-    private func save(text: String) {
-        self.dataManager.create(objectType: Category.self, with: text) { category in
-            self.categories.append(category)
-            self.tableView.insertRows(
-                at: [IndexPath(row: self.categories.count - 1, section: 0)],
-                with: .automatic
-            )
-        }
-    }
+    //    private func save(text: String) {
+    //        self.dataManager.create(objectType: Category.self, with: text) { category in
+    //            self.categories.append(category)
+    //            self.tableView.insertRows(
+    //                at: [IndexPath(row: self.categories.count - 1, section: 0)],
+    //                with: .automatic
+    //            )
+    //        }
+    //    }
     
     // MARK: - Private Methods
     private func showAlert() {
@@ -62,7 +65,14 @@ final class CategoryViewController: UITableViewController {
         let addAction = UIAlertAction(title: "Add category", style: .default) { _ in
             //извлекаем текст из textField и проверям не пустой ли он
             if let text = textField.text, textField.text != nil {
-                self.save(text: text)
+                let newCategory = Category()
+                newCategory.name = text
+                self.save(category: newCategory)
+                
+                self.tableView.insertRows(
+                    at: [IndexPath(row: (self.categories?.count ?? 1) - 1, section: 0)],
+                    with: .automatic
+                )
             }
         }
         alert.addAction(addAction)
@@ -83,7 +93,7 @@ final class CategoryViewController: UITableViewController {
 // MARK: - UITableViewDataSource
 extension CategoryViewController {
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        categories.count
+        categories?.count ?? 0
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -92,11 +102,11 @@ extension CategoryViewController {
             for: indexPath
         )
         
-        let category = categories[indexPath.row]
+        let category = categories?[indexPath.row]
         
         var content = cell.defaultContentConfiguration()
         
-        content.text = category.name
+        content.text = category?.name ?? "No categories added yet"
         
         cell.contentConfiguration = content
         
@@ -115,7 +125,7 @@ extension CategoryViewController {
         let toDoListVC = ToDoListViewController()
         
         // передаем выбранную категорию в свойство которое находится в toDoListVC
-        toDoListVC.selectedCategory = categories[indexPath.row]
+        toDoListVC.selectedCategory = categories?[indexPath.row]
         
         // выполняем переход по навигации
         navigationController?.pushViewController(toDoListVC, animated: true)
@@ -124,19 +134,31 @@ extension CategoryViewController {
 
 // MARK: - Model Manupulation Methods
 extension CategoryViewController {
-    private func loadItems(with request: NSFetchRequest<Category> = Category.fetchRequest()) {
-        dataManager.fetchItems(with: request) { (result: Result<[Category], Error>) in
-            switch result {
-            case .success(let categories):
-                self.categories = categories
-            case .failure(let error):
-                print(error)
+    func save(category: Category) {
+        do {
+            /*
+             realm.write выполняет операцию сохранения объекта category в базе
+             данных Realm.
+             */
+            try realm.write{
+                realm.add(category)
             }
+        } catch {
+            print("Error saving category \(error)")
         }
+    }
+    
+    private func loadCategories() {
+        /*
+         Это вызов метода objects(_:) для Realm с указанием типа Category.
+         Этот метод возвращает коллекцию объектов типа Category из базы данных Realm.
+         То есть, он извлекает все записи из таблицы, соответствующей модели Category.
+         */
+        categories = realm.objects(Category.self)
     }
 }
 
-// MARK - NavigationBar settings
+// MARK: - NavigationBar settings
 extension CategoryViewController {
     private func setupNavigationBar() {
         title = "TaskHub"
