@@ -7,11 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		3C2965682ABC550C00F23F26 /* DataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C2965672ABC550C00F23F26 /* DataManager.swift */; };
 		3C29656E2ABC8D6A00F23F26 /* Realm in Frameworks */ = {isa = PBXBuildFile; productRef = 3C29656D2ABC8D6A00F23F26 /* Realm */; };
 		3C2965702ABC8D6A00F23F26 /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 3C29656F2ABC8D6A00F23F26 /* RealmSwift */; };
 		3C2965742ABCAFDE00F23F26 /* Item.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C2965732ABCAFDE00F23F26 /* Item.swift */; };
 		3C2965762ABCAFE600F23F26 /* Category.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C2965752ABCAFE600F23F26 /* Category.swift */; };
+		3C2965792ABDA05B00F23F26 /* SwipeCellKit in Frameworks */ = {isa = PBXBuildFile; productRef = 3C2965782ABDA05B00F23F26 /* SwipeCellKit */; };
 		3C6B5CFE2ABB5A70005A96EE /* CategoryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C6B5CFD2ABB5A70005A96EE /* CategoryViewController.swift */; };
 		3CB28A7A2AB8D5C0000E2AEB /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CB28A792AB8D5C0000E2AEB /* AppDelegate.swift */; };
 		3CB28A7C2AB8D5C0000E2AEB /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CB28A7B2AB8D5C0000E2AEB /* SceneDelegate.swift */; };
@@ -22,7 +22,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		3C2965672ABC550C00F23F26 /* DataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataManager.swift; sourceTree = "<group>"; };
 		3C2965732ABCAFDE00F23F26 /* Item.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Item.swift; sourceTree = "<group>"; };
 		3C2965752ABCAFE600F23F26 /* Category.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Category.swift; sourceTree = "<group>"; };
 		3C6B5CFD2ABB5A70005A96EE /* CategoryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryViewController.swift; sourceTree = "<group>"; };
@@ -40,6 +39,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3C2965792ABDA05B00F23F26 /* SwipeCellKit in Frameworks */,
 				3C2965702ABC8D6A00F23F26 /* RealmSwift in Frameworks */,
 				3C29656E2ABC8D6A00F23F26 /* Realm in Frameworks */,
 				3CB28A962AB99090000E2AEB /* SnapKit in Frameworks */,
@@ -52,7 +52,6 @@
 		3C2965662ABC54FC00F23F26 /* Services */ = {
 			isa = PBXGroup;
 			children = (
-				3C2965672ABC550C00F23F26 /* DataManager.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -142,6 +141,7 @@
 				3CB28A952AB99090000E2AEB /* SnapKit */,
 				3C29656D2ABC8D6A00F23F26 /* Realm */,
 				3C29656F2ABC8D6A00F23F26 /* RealmSwift */,
+				3C2965782ABDA05B00F23F26 /* SwipeCellKit */,
 			);
 			productName = TaskHub;
 			productReference = 3CB28A762AB8D5C0000E2AEB /* TaskHub.app */;
@@ -174,6 +174,7 @@
 			packageReferences = (
 				3CB28A942AB99090000E2AEB /* XCRemoteSwiftPackageReference "SnapKit" */,
 				3C29656C2ABC8D6A00F23F26 /* XCRemoteSwiftPackageReference "realm-swift" */,
+				3C2965772ABDA05B00F23F26 /* XCRemoteSwiftPackageReference "SwipeCellKit" */,
 			);
 			productRefGroup = 3CB28A772AB8D5C0000E2AEB /* Products */;
 			projectDirPath = "";
@@ -202,7 +203,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				3C6B5CFE2ABB5A70005A96EE /* CategoryViewController.swift in Sources */,
-				3C2965682ABC550C00F23F26 /* DataManager.swift in Sources */,
 				3CB28A7E2AB8D5C0000E2AEB /* ToDoListViewController.swift in Sources */,
 				3C2965742ABCAFDE00F23F26 /* Item.swift in Sources */,
 				3CB28A7A2AB8D5C0000E2AEB /* AppDelegate.swift in Sources */,
@@ -425,6 +425,14 @@
 				kind = branch;
 			};
 		};
+		3C2965772ABDA05B00F23F26 /* XCRemoteSwiftPackageReference "SwipeCellKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SwipeCellKit/SwipeCellKit";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
 		3CB28A942AB99090000E2AEB /* XCRemoteSwiftPackageReference "SnapKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/SnapKit/SnapKit.git";
@@ -445,6 +453,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 3C29656C2ABC8D6A00F23F26 /* XCRemoteSwiftPackageReference "realm-swift" */;
 			productName = RealmSwift;
+		};
+		3C2965782ABDA05B00F23F26 /* SwipeCellKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3C2965772ABDA05B00F23F26 /* XCRemoteSwiftPackageReference "SwipeCellKit" */;
+			productName = SwipeCellKit;
 		};
 		3CB28A952AB99090000E2AEB /* SnapKit */ = {
 			isa = XCSwiftPackageProductDependency;
