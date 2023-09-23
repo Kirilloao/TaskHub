@@ -168,14 +168,23 @@ final class CategoryViewController: SwiftTableViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell = super.tableView(tableView, cellForRowAt: indexPath)
-        
         var content = cell.defaultContentConfiguration()
         
-        let category = categories?[indexPath.row]
-        
-        content.text = category?.name ?? "No categories added yet"
-        cell.backgroundColor = UIColor(hexString: category?.colour ?? "1D9BF6")
-        
+        // извлекаем опциональное значение из массива categories по индексу
+        if let category = categories?[indexPath.row] {
+            
+            // устанавливаем название категории в ячейки
+            content.text = category.name
+            
+            // извлекаем опциональное значение из с модели категория и ее свойва цвет
+            guard let categoryColour = UIColor(hexString: category.colour) else {fatalError()}
+            
+            // устанавливаем задний фон цветом из категории
+            cell.backgroundColor = categoryColour
+            
+            // устанавливаем цвет текста контрастным (зависит от цвета в категории)
+            content.textProperties.color = ContrastColorOf(categoryColour, returnFlat: true)
+        }
         cell.contentConfiguration = content
         
         return cell
