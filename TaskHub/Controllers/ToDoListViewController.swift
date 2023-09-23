@@ -1,3 +1,4 @@
+
 //
 //  ToDoListViewController.swift
 //  TaskHub
@@ -8,11 +9,9 @@
 import UIKit
 import SnapKit
 import RealmSwift
+import SwipeCellKit
 
-final class ToDoListViewController: UITableViewController {
-    
-    // MARK: - Private Methods
-    private let realm = try! Realm()
+final class ToDoListViewController: SwiftTableViewController {
     
     // MARK: - Public Properties
     /* Вычисляемое свойство, didSet выполняется каждый раз когда значение свойства
@@ -27,6 +26,7 @@ final class ToDoListViewController: UITableViewController {
     
     // MARK: - Private Properties
     private var items: Results<Item>?
+    private let realm = try! Realm()
     
     // MARK: - Private UI Properties
     private lazy var searchController: UISearchController = {
@@ -49,9 +49,48 @@ final class ToDoListViewController: UITableViewController {
         showAlert()
     }
     
+    // MARK: - Model Manupulation Methods
+    private func loadItems() {
+        /*
+         В данном методе мы пытаемся присвоить массиву items результат сортировки
+         объектов item.
+         
+         Метод sorted(byKeyPath:ascending:)  применяет сортировку к коллекции items.
+         Аргументы метода определяют, как именно будет производиться сортировка.
+         
+         byKeyPath: "title": Это путь к ключевому свойству, по которому будет
+         производиться сортировка. В данном случае, сортировка будет осуществляться
+         по свойству title в каждом объекте Item.
+         
+         ascending: true: Этот аргумент указывает, что сортировка будет в
+         возрастающем порядке (от A до Z).
+         
+         После выполнения этой строки кода, переменная items будет содержать
+         отсортированный массив объектов Item из коллекции items, связанной с
+         selectedCategory. Теперь items будет представлять собой массив объектов
+         Item, упорядоченных по алфавиту и приведенных к порядку "от A до Z" на
+         основе свойства title каждого объекта.
+         */
+        items = selectedCategory?.items.sorted(byKeyPath: "title", ascending: true)
+    }
+    
+    // удаляем данные (вызываем метод которые создали из класса SwiftTableViewController
+    override func updateModel(at indexPath: IndexPath) {
+        if let item = self.items?[indexPath.row] {
+            do {
+                try self.realm.write {
+                    self.realm.delete(item)
+                }
+            } catch {
+                print("Error deleting item, \(error)")
+            }
+        }
+    }
+    
     // MARK: - Private Methods
     private func setupTableView() {
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+        tableView.register(SwipeTableViewCell.self, forCellReuseIdentifier: "cell")
+        
     }
     
     private func showAlert() {
@@ -101,33 +140,6 @@ final class ToDoListViewController: UITableViewController {
     }
 }
 
-// MARK: - Model Manupulation Methods
-extension ToDoListViewController {
-    private func loadItems() {
-        /*
-         В данном методе мы пытаемся присвоить массиву items результат сортировки
-         объектов item.
-         
-         Метод sorted(byKeyPath:ascending:)  применяет сортировку к коллекции items.
-         Аргументы метода определяют, как именно будет производиться сортировка.
-         
-         byKeyPath: "title": Это путь к ключевому свойству, по которому будет
-         производиться сортировка. В данном случае, сортировка будет осуществляться
-         по свойству title в каждом объекте Item.
-         
-         ascending: true: Этот аргумент указывает, что сортировка будет в
-         возрастающем порядке (от A до Z).
-         
-         После выполнения этой строки кода, переменная items будет содержать
-         отсортированный массив объектов Item из коллекции items, связанной с
-         selectedCategory. Теперь items будет представлять собой массив объектов
-         Item, упорядоченных по алфавиту и приведенных к порядку "от A до Z" на
-         основе свойства title каждого объекта.
-         */
-        items = selectedCategory?.items.sorted(byKeyPath: "title", ascending: true)
-    }
-}
-
 // MARK: - UITableViewDataSource
 extension ToDoListViewController {
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -135,10 +147,7 @@ extension ToDoListViewController {
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(
-            withIdentifier: "cell",
-            for: indexPath
-        )
+        let cell = super.tableView(tableView, cellForRowAt: indexPath)
         
         var content = cell.defaultContentConfiguration()
         
@@ -169,42 +178,8 @@ extension ToDoListViewController {
             }
         }
         
-        // delete object in Realm
-        
-        //        if let item = items?[indexPath.row] {
-        //            do {
-        //                try realm.write {
-        //                    realm.delete(item)
-        //                }
-        //            } catch {
-        //                print("Error saveing done status, \(error)")
-        //            }
-        //        }
-        
-        
         tableView.reloadData()
         tableView.deselectRow(at: indexPath, animated: true)
-    }
-}
-
-// MARK: - NavigationBar
-extension ToDoListViewController {
-    private func setupNavigationBar() {
-        title = "Items"
-        
-        let addButton = UIBarButtonItem(
-            barButtonSystemItem: .add,
-            target: self,
-            action: #selector(addButtonDidTapped)
-        )
-        addButton.tintColor = .white
-        
-        navigationItem.rightBarButtonItem = addButton
-        
-        // устанавливаем searchBar
-        navigationItem.searchController = searchController
-        navigationItem.hidesSearchBarWhenScrolling = false
-        
     }
 }
 
@@ -241,5 +216,26 @@ extension ToDoListViewController: UISearchBarDelegate {
                 searchBar.resignFirstResponder()
             }
         }
+    }
+}
+
+// MARK: - NavigationBar
+extension ToDoListViewController {
+    private func setupNavigationBar() {
+        title = "Items"
+        
+        let addButton = UIBarButtonItem(
+            barButtonSystemItem: .add,
+            target: self,
+            action: #selector(addButtonDidTapped)
+        )
+        addButton.tintColor = .white
+        
+        navigationItem.rightBarButtonItem = addButton
+        
+        // устанавливаем searchBar
+        navigationItem.searchController = searchController
+        navigationItem.hidesSearchBarWhenScrolling = false
+        
     }
 }

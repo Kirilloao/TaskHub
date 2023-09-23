@@ -9,7 +9,7 @@ import UIKit
 import RealmSwift
 import SwipeCellKit
 
-final class CategoryViewController: UITableViewController {
+final class CategoryViewController: SwiftTableViewController {
     
     // MARK: - Private Properties
     /*
@@ -33,6 +33,45 @@ final class CategoryViewController: UITableViewController {
     // MARK: - Private Actions
     @objc private func addBarButtonDidTapped() {
         showAlert()
+    }
+    
+    // MARK: - Model Manupulation Methods
+    // сохраняем данные
+    func save(category: Category) {
+        do {
+            /*
+             realm.write выполняет операцию сохранения объекта category в базе
+             данных Realm.
+             */
+            try realm.write{
+                realm.add(category)
+            }
+        } catch {
+            print("Error saving category \(error)")
+        }
+    }
+    
+    // скачиваем данные
+    private func loadCategories() {
+        /*
+         Это вызов метода objects(_:) для Realm с указанием типа Category.
+         Этот метод возвращает коллекцию объектов типа Category из базы данных Realm.
+         То есть, он извлекает все записи из таблицы, соответствующей модели Category.
+         */
+        categories = realm.objects(Category.self)
+    }
+    
+    // удаляем данные (вызываем метод которые создали из класса SwiftTableViewController
+    override func updateModel(at indexPath: IndexPath) {
+        if let category = self.categories?[indexPath.row] {
+            do {
+                try self.realm.write {
+                    self.realm.delete(category)
+                }
+            } catch {
+                print("Error deleting category, \(error)")
+            }
+        }
     }
     
     // MARK: - Private Methods
@@ -74,10 +113,9 @@ final class CategoryViewController: UITableViewController {
         // регистрируем ячейку
         tableView.register(
             SwipeTableViewCell.self,
-            forCellReuseIdentifier: "categoryCell"
+            forCellReuseIdentifier: "cell"
         )
         
-        tableView.rowHeight = 80
     }
     
     // MARK: - UITableViewDataSource
@@ -87,19 +125,13 @@ final class CategoryViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        // используем фреймворк SwiftCellKit
-        let cell = tableView.dequeueReusableCell(withIdentifier: "categoryCell") as! SwipeTableViewCell
-        
-        let category = categories?[indexPath.row]
+        let cell = super.tableView(tableView, cellForRowAt: indexPath)
         
         var content = cell.defaultContentConfiguration()
         
-        content.text = category?.name ?? "No categories added yet"
+        content.text = categories?[indexPath.row].name ?? "No categories added yet"
         
         cell.contentConfiguration = content
-        
-        // используем фреймворк SwiftCellKit
-        cell.delegate = self
         
         return cell
     }
@@ -121,64 +153,38 @@ final class CategoryViewController: UITableViewController {
     }
 }
 
-// MARK: - SwipeTableViewCellDelegate
-// используем фреймворк SwiftCellKit
-extension CategoryViewController: SwipeTableViewCellDelegate {
-    func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath, for orientation: SwipeCellKit.SwipeActionsOrientation) -> [SwipeCellKit.SwipeAction]? {
-        guard orientation == .right else { return nil }
-        
-        let deleteAction = SwipeAction(style: .destructive, title: "Delete") { action, indexPath in
-            if let category = self.categories?[indexPath.row] {
-                do {
-                    try self.realm.write {
-                        self.realm.delete(category)
-                    }
-                } catch {
-                    print("Error deleting category, \(error)")
-                }
-//                tableView.reloadData()
-            }
-        }
-        
-        // customize the action appearance
-        deleteAction.image = UIImage(named: "delete-icon")
-        
-        return [deleteAction]
-    }
-    
-    func tableView(_ tableView: UITableView, editActionsOptionsForRowAt indexPath: IndexPath, for orientation: SwipeActionsOrientation) -> SwipeOptions {
-        var options = SwipeOptions()
-        options.expansionStyle = .destructive
-//        options.transitionStyle = .border
-        return options
-    }
-}
-
-// MARK: - Model Manupulation Methods
-extension CategoryViewController {
-    func save(category: Category) {
-        do {
-            /*
-             realm.write выполняет операцию сохранения объекта category в базе
-             данных Realm.
-             */
-            try realm.write{
-                realm.add(category)
-            }
-        } catch {
-            print("Error saving category \(error)")
-        }
-    }
-    
-    private func loadCategories() {
-        /*
-         Это вызов метода objects(_:) для Realm с указанием типа Category.
-         Этот метод возвращает коллекцию объектов типа Category из базы данных Realm.
-         То есть, он извлекает все записи из таблицы, соответствующей модели Category.
-         */
-        categories = realm.objects(Category.self)
-    }
-}
+//// MARK: - SwipeTableViewCellDelegate
+//// используем фреймворк SwiftCellKit
+//extension CategoryViewController: SwipeTableViewCellDelegate {
+//    func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath, for orientation: SwipeCellKit.SwipeActionsOrientation) -> [SwipeCellKit.SwipeAction]? {
+//        guard orientation == .right else { return nil }
+//
+//        let deleteAction = SwipeAction(style: .destructive, title: "Delete") { action, indexPath in
+//            if let category = self.categories?[indexPath.row] {
+//                do {
+//                    try self.realm.write {
+//                        self.realm.delete(category)
+//                    }
+//                } catch {
+//                    print("Error deleting category, \(error)")
+//                }
+////                tableView.reloadData()
+//            }
+//        }
+//
+//        // customize the action appearance
+//        deleteAction.image = UIImage(named: "delete-icon")
+//
+//        return [deleteAction]
+//    }
+//
+//    func tableView(_ tableView: UITableView, editActionsOptionsForRowAt indexPath: IndexPath, for orientation: SwipeActionsOrientation) -> SwipeOptions {
+//        var options = SwipeOptions()
+//        options.expansionStyle = .destructive
+////        options.transitionStyle = .border
+//        return options
+//    }
+//}
 
 // MARK: - NavigationBar settings
 extension CategoryViewController {
@@ -196,4 +202,3 @@ extension CategoryViewController {
         navigationItem.rightBarButtonItem = addBarButton
     }
 }
-
