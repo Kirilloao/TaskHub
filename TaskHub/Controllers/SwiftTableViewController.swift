@@ -10,13 +10,13 @@ import SwipeCellKit
 
 class SwiftTableViewController: UITableViewController, SwipeTableViewCellDelegate {
     
+    // MARK: - Life Cycle Methods
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.rowHeight = 80
     }
     
-    // TableViewDataSource Methods
-    
+    // MARK: - UITableViewDataSource
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         // используем фреймворк SwiftCellKit
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell") as! SwipeTableViewCell
@@ -27,20 +27,12 @@ class SwiftTableViewController: UITableViewController, SwipeTableViewCellDelegat
         return cell
     }
     
+    // MARK: - SwipeTableViewCellDelegate
     func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath, for orientation: SwipeCellKit.SwipeActionsOrientation) -> [SwipeCellKit.SwipeAction]? {
         guard orientation == .right else { return nil }
         
         let deleteAction = SwipeAction(style: .destructive, title: "Delete") { action, indexPath in
             self.updateModel(at: indexPath)
-            //            if let category = self.categories?[indexPath.row] {
-            //                do {
-            //                    try self.realm.write {
-            //                        self.realm.delete(category)
-            //                    }
-            //                } catch {
-            //                    print("Error deleting category, \(error)")
-            //                }
-            //            }
         }
         
         // customize the action appearance
@@ -56,8 +48,8 @@ class SwiftTableViewController: UITableViewController, SwipeTableViewCellDelegat
         return options
     }
     
+    // MARK: - Public Methods
     // update data model
     func updateModel(at indexPath: IndexPath) {
-        
     }
 }

@@ -35,57 +35,22 @@ final class ToDoListViewController: SwiftTableViewController {
         searchController.searchBar.tintColor = .black
         searchController.searchBar.backgroundColor = .white
         searchController.searchBar.delegate = self
+        // красим textField в searchBar в белый цвет
+        searchController.searchBar.searchTextField.backgroundColor = .white
         return searchController
     }()
     
     // MARK: - Life Cycle Methods
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupNavigationBar()
+        addRightBarButton()
         setupTableView()
     }
     
     // устанавливаем цвет navigationBar в соответсвии в selectedCategory
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
-        if let colourHex = selectedCategory?.colour {
-            title = selectedCategory?.name
-            
-            // красим textField в searchBar в белый цвет
-            searchController.searchBar.searchTextField.backgroundColor = .white
-            
-            guard
-                let navBar = navigationController?.navigationBar
-            else {
-                fatalError("Navigation controller does not exist.")
-            }
-            
-            if let navBarColour = UIColor(hexString: colourHex) {
-                
-                // красив объекты в navigationBar в контрастный цвет
-                navBar.tintColor = ContrastColorOf(navBarColour, returnFlat: true)
-                // красим область вокрук searchBar в цвет из selectedCategory
-                searchController.searchBar.backgroundColor = navBarColour
-                
-                // красим всю навигационную панель
-                navBar.barTintColor = navBarColour
-                
-                let navBarAppearance = UINavigationBarAppearance()
-                
-                // Устанавливаем цвет для navigationBar
-                navBarAppearance.backgroundColor = UIColor(hexString: colourHex)
-                // Меняем цвет для текста
-                navBarAppearance.largeTitleTextAttributes = [
-                    .foregroundColor: ContrastColorOf(navBarColour, returnFlat: true)
-                ]
-                
-                // Меняем цвет в статичном положении и в скроллинге
-                navBar.standardAppearance = navBarAppearance
-                navBar.scrollEdgeAppearance = navBarAppearance
-                
-            }
-        }
+        setupNavigationBar()
     }
     
     // MARK: - Private Actions
@@ -135,7 +100,6 @@ final class ToDoListViewController: SwiftTableViewController {
     private func setupTableView() {
         tableView.register(SwipeTableViewCell.self, forCellReuseIdentifier: "cell")
         tableView.separatorStyle = .none
-        
     }
     
     private func showAlert() {
@@ -283,7 +247,45 @@ extension ToDoListViewController: UISearchBarDelegate {
 // MARK: - NavigationBar
 extension ToDoListViewController {
     private func setupNavigationBar() {
-        
+        if let colourHex = selectedCategory?.colour {
+            title = selectedCategory?.name
+            
+            
+            
+            guard
+                let navBar = navigationController?.navigationBar
+            else {
+                fatalError("Navigation controller does not exist.")
+            }
+            
+            if let navBarColour = UIColor(hexString: colourHex) {
+                
+                // красив объекты в navigationBar в контрастный цвет
+                navBar.tintColor = ContrastColorOf(navBarColour, returnFlat: true)
+                // красим область вокрук searchBar в цвет из selectedCategory
+                searchController.searchBar.backgroundColor = navBarColour
+                
+                // красим всю навигационную панель
+                navBar.barTintColor = navBarColour
+                
+                let navBarAppearance = UINavigationBarAppearance()
+                
+                // Устанавливаем цвет для navigationBar
+                navBarAppearance.backgroundColor = UIColor(hexString: colourHex)
+                // Меняем цвет для текста
+                navBarAppearance.largeTitleTextAttributes = [
+                    .foregroundColor: ContrastColorOf(navBarColour, returnFlat: true)
+                ]
+                
+                // Меняем цвет в статичном положении и в скроллинге
+                navBar.standardAppearance = navBarAppearance
+                navBar.scrollEdgeAppearance = navBarAppearance
+                
+            }
+        }
+    }
+    
+    private func addRightBarButton() {
         let addButton = UIBarButtonItem(
             barButtonSystemItem: .add,
             target: self,

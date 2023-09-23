@@ -24,7 +24,7 @@ final class CategoryViewController: SwiftTableViewController {
     // MARK: - Life Cycle Methods
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupNavigationBar()
+        addBarButton()
         setupTableView()
         
         // загружаем обекты из СoreData в массив categoryArray
@@ -34,33 +34,7 @@ final class CategoryViewController: SwiftTableViewController {
     // изменяем цвет navigationBar в момент когда собитаертся появится
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        let navBarAppearance = UINavigationBarAppearance()
-        
-        guard
-            let navBar = navigationController?.navigationBar
-        else {
-            fatalError("Navigation controller does not exist.")
-        }
-        
-        // Устанавливаем цвет для navigationBar
-        navBarAppearance.backgroundColor = UIColor(
-            red: 21/255,
-            green: 101/255,
-            blue: 192/255,
-            alpha: 194/255
-        )
-        
-        navBar.prefersLargeTitles = true
-        
-        // Меняем цвет для текста
-        navBarAppearance.titleTextAttributes = [.foregroundColor: UIColor.white]
-        navBarAppearance.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
-        
-        // Меняем цвет в статичном положении и в скроллинге
-        navBar.standardAppearance = navBarAppearance
-        navBar.scrollEdgeAppearance = navBarAppearance
-        
-        
+        setupnNavigationBar()
     }
     
     // MARK: - Private Actions
@@ -70,7 +44,7 @@ final class CategoryViewController: SwiftTableViewController {
     
     // MARK: - Model Manupulation Methods
     // сохраняем данные
-    func save(category: Category) {
+    private func save(category: Category) {
         do {
             /*
              realm.write выполняет операцию сохранения объекта category в базе
@@ -157,7 +131,6 @@ final class CategoryViewController: SwiftTableViewController {
         )
         
         tableView.separatorStyle = .none
-        
     }
     
     // MARK: - UITableViewDataSource
@@ -209,9 +182,36 @@ final class CategoryViewController: SwiftTableViewController {
 
 // MARK: - NavigationBar settings
 extension CategoryViewController {
-    private func setupNavigationBar() {
+    private func setupnNavigationBar() {
         title = "TaskHub"
         
+        let navBarAppearance = UINavigationBarAppearance()
+        
+        guard
+            let navBar = navigationController?.navigationBar
+        else {
+            fatalError("Navigation controller does not exist.")
+        }
+        
+        // Устанавливаем цвет для navigationBar
+        navBarAppearance.backgroundColor = UIColor(
+            red: 21/255,
+            green: 101/255,
+            blue: 192/255,
+            alpha: 194/255
+        )
+        
+        navBar.prefersLargeTitles = true
+        
+        // Меняем цвет для текста
+        navBarAppearance.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
+        
+        // Меняем цвет в статичном положении и в скроллинге
+        navBar.standardAppearance = navBarAppearance
+        navBar.scrollEdgeAppearance = navBarAppearance
+    }
+    
+    private func addBarButton() {
         let addBarButton = UIBarButtonItem(
             barButtonSystemItem: .add,
             target: self,
