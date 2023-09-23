@@ -117,6 +117,7 @@ final class CategoryViewController: SwiftTableViewController {
                 )
             }
         }
+        
         alert.addAction(addAction)
         
         //отображаем alertController
