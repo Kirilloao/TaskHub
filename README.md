@@ -5,8 +5,10 @@
 2. **Lesson**: Section 19
 
 3. **UIKit, MVC, Code,** SPM: **SnapKit, Realm, SwipeCellKit,** Cocoapods: **Chameleon**
+4. **Main branch:** used CoreData, without Chameleon framework
 
-4. **Framework links:**
+   **WorkWithRealm branch**: used Realm, and all these frameworks (use this branch, if you want to clone project)
+5. **Framework links:**
    
 https://github.com/SnapKit/SnapKit
 
