@@ -50,6 +50,10 @@ final class ToDoListViewController: SwiftTableViewController {
         super.viewWillAppear(animated)
         
         if let colourHex = selectedCategory?.colour {
+            title = selectedCategory?.name
+            
+            // красим textField в searchBar в белый цвет
+            searchController.searchBar.searchTextField.backgroundColor = .white
             
             guard
                 let navBar = navigationController?.navigationBar
@@ -57,46 +61,31 @@ final class ToDoListViewController: SwiftTableViewController {
                 fatalError("Navigation controller does not exist.")
             }
             
-            let navBarAppearance = UINavigationBarAppearance()
-            
-            // Устанавливаем цвет для navigationBar
-            navBarAppearance.backgroundColor = UIColor(hexString: colourHex)
-            // Меняем цвет для текста
-            navBarAppearance.titleTextAttributes = [.foregroundColor: UIColor.white]
-            navBarAppearance.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
-            
-            // Меняем цвет в статичном положении и в скроллинге
-            navBar.standardAppearance = navBarAppearance
-            navBar.scrollEdgeAppearance = navBarAppearance
+            if let navBarColour = UIColor(hexString: colourHex) {
+                
+                // красив объекты в navigationBar в контрастный цвет
+                navBar.tintColor = ContrastColorOf(navBarColour, returnFlat: true)
+                // красим область вокрук searchBar в цвет из selectedCategory
+                searchController.searchBar.backgroundColor = navBarColour
+                
+                // красим всю навигационную панель
+                navBar.barTintColor = navBarColour
+                
+                let navBarAppearance = UINavigationBarAppearance()
+                
+                // Устанавливаем цвет для navigationBar
+                navBarAppearance.backgroundColor = UIColor(hexString: colourHex)
+                // Меняем цвет для текста
+                navBarAppearance.largeTitleTextAttributes = [
+                    .foregroundColor: ContrastColorOf(navBarColour, returnFlat: true)
+                ]
+                
+                // Меняем цвет в статичном положении и в скроллинге
+                navBar.standardAppearance = navBarAppearance
+                navBar.scrollEdgeAppearance = navBarAppearance
+                
+            }
         }
-    }
-    
-    // возвращаем стандартный цвет navigationBar при закрытии экрана
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        let navBarAppearance = UINavigationBarAppearance()
-        
-        guard
-            let navBar = navigationController?.navigationBar
-        else {
-            fatalError("Navigation controller does not exist.")
-        }
-        
-        // Устанавливаем цвет для navigationBar
-        navBarAppearance.backgroundColor = UIColor(
-            red: 21/255,
-            green: 101/255,
-            blue: 192/255,
-            alpha: 194/255
-        )
-        
-        // Меняем цвет для текста
-        navBarAppearance.titleTextAttributes = [.foregroundColor: UIColor.white]
-        navBarAppearance.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
-        
-        // Меняем цвет в статичном положении и в скроллинге
-        navBar.standardAppearance = navBarAppearance
-        navBar.scrollEdgeAppearance = navBarAppearance
     }
     
     // MARK: - Private Actions
@@ -294,14 +283,12 @@ extension ToDoListViewController: UISearchBarDelegate {
 // MARK: - NavigationBar
 extension ToDoListViewController {
     private func setupNavigationBar() {
-        title = "Items"
         
         let addButton = UIBarButtonItem(
             barButtonSystemItem: .add,
             target: self,
             action: #selector(addButtonDidTapped)
         )
-        addButton.tintColor = .white
         
         navigationItem.rightBarButtonItem = addButton
         

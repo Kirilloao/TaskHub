@@ -31,6 +31,38 @@ final class CategoryViewController: SwiftTableViewController {
         loadCategories()
     }
     
+    // изменяем цвет navigationBar в момент когда собитаертся появится
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        let navBarAppearance = UINavigationBarAppearance()
+        
+        guard
+            let navBar = navigationController?.navigationBar
+        else {
+            fatalError("Navigation controller does not exist.")
+        }
+        
+        // Устанавливаем цвет для navigationBar
+        navBarAppearance.backgroundColor = UIColor(
+            red: 21/255,
+            green: 101/255,
+            blue: 192/255,
+            alpha: 194/255
+        )
+        
+        navBar.prefersLargeTitles = true
+        
+        // Меняем цвет для текста
+        navBarAppearance.titleTextAttributes = [.foregroundColor: UIColor.white]
+        navBarAppearance.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
+        
+        // Меняем цвет в статичном положении и в скроллинге
+        navBar.standardAppearance = navBarAppearance
+        navBar.scrollEdgeAppearance = navBarAppearance
+        
+        
+    }
+    
     // MARK: - Private Actions
     @objc private func addBarButtonDidTapped() {
         showAlert()
@@ -165,39 +197,6 @@ final class CategoryViewController: SwiftTableViewController {
         navigationController?.pushViewController(toDoListVC, animated: true)
     }
 }
-
-//// MARK: - SwipeTableViewCellDelegate
-//// используем фреймворк SwiftCellKit
-//extension CategoryViewController: SwipeTableViewCellDelegate {
-//    func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath, for orientation: SwipeCellKit.SwipeActionsOrientation) -> [SwipeCellKit.SwipeAction]? {
-//        guard orientation == .right else { return nil }
-//
-//        let deleteAction = SwipeAction(style: .destructive, title: "Delete") { action, indexPath in
-//            if let category = self.categories?[indexPath.row] {
-//                do {
-//                    try self.realm.write {
-//                        self.realm.delete(category)
-//                    }
-//                } catch {
-//                    print("Error deleting category, \(error)")
-//                }
-////                tableView.reloadData()
-//            }
-//        }
-//
-//        // customize the action appearance
-//        deleteAction.image = UIImage(named: "delete-icon")
-//
-//        return [deleteAction]
-//    }
-//
-//    func tableView(_ tableView: UITableView, editActionsOptionsForRowAt indexPath: IndexPath, for orientation: SwipeActionsOrientation) -> SwipeOptions {
-//        var options = SwipeOptions()
-//        options.expansionStyle = .destructive
-////        options.transitionStyle = .border
-//        return options
-//    }
-//}
 
 // MARK: - NavigationBar settings
 extension CategoryViewController {
