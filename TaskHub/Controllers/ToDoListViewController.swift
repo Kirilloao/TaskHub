@@ -45,6 +45,60 @@ final class ToDoListViewController: SwiftTableViewController {
         setupTableView()
     }
     
+    // устанавливаем цвет navigationBar в соответсвии в selectedCategory
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        if let colourHex = selectedCategory?.colour {
+            
+            guard
+                let navBar = navigationController?.navigationBar
+            else {
+                fatalError("Navigation controller does not exist.")
+            }
+            
+            let navBarAppearance = UINavigationBarAppearance()
+            
+            // Устанавливаем цвет для navigationBar
+            navBarAppearance.backgroundColor = UIColor(hexString: colourHex)
+            // Меняем цвет для текста
+            navBarAppearance.titleTextAttributes = [.foregroundColor: UIColor.white]
+            navBarAppearance.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
+            
+            // Меняем цвет в статичном положении и в скроллинге
+            navBar.standardAppearance = navBarAppearance
+            navBar.scrollEdgeAppearance = navBarAppearance
+        }
+    }
+    
+    // возвращаем стандартный цвет navigationBar при закрытии экрана
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        let navBarAppearance = UINavigationBarAppearance()
+        
+        guard
+            let navBar = navigationController?.navigationBar
+        else {
+            fatalError("Navigation controller does not exist.")
+        }
+        
+        // Устанавливаем цвет для navigationBar
+        navBarAppearance.backgroundColor = UIColor(
+            red: 21/255,
+            green: 101/255,
+            blue: 192/255,
+            alpha: 194/255
+        )
+        
+        // Меняем цвет для текста
+        navBarAppearance.titleTextAttributes = [.foregroundColor: UIColor.white]
+        navBarAppearance.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
+        
+        // Меняем цвет в статичном положении и в скроллинге
+        navBar.standardAppearance = navBarAppearance
+        navBar.scrollEdgeAppearance = navBarAppearance
+    }
+    
     // MARK: - Private Actions
     @objc private func addButtonDidTapped() {
         showAlert()
@@ -254,6 +308,5 @@ extension ToDoListViewController {
         // устанавливаем searchBar
         navigationItem.searchController = searchController
         navigationItem.hidesSearchBarWhenScrolling = false
-        
     }
 }

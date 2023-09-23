@@ -50,6 +50,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         // меняем цвет кнопки назад
         UINavigationBar.appearance().tintColor = .white
+        UINavigationBar.appearance().prefersLargeTitles = true
+
     }
     
 
