@@ -8,6 +8,7 @@
 import UIKit
 import RealmSwift
 import SwipeCellKit
+import ChameleonFramework
 
 final class CategoryViewController: SwiftTableViewController {
     
@@ -95,6 +96,13 @@ final class CategoryViewController: SwiftTableViewController {
             if let text = textField.text, textField.text != nil {
                 let newCategory = Category()
                 newCategory.name = text
+                /*
+                 Сначала мы созадем свойство в модели category в которое будем
+                 сохраняем наш цвет.
+                 Cохраняем рандомный цвет в формате hex.
+                 */
+                newCategory.colour = UIColor.randomFlat().hexValue()
+                
                 self.save(category: newCategory)
                 
                 self.tableView.insertRows(
@@ -116,6 +124,8 @@ final class CategoryViewController: SwiftTableViewController {
             forCellReuseIdentifier: "cell"
         )
         
+        tableView.separatorStyle = .none
+        
     }
     
     // MARK: - UITableViewDataSource
@@ -129,7 +139,10 @@ final class CategoryViewController: SwiftTableViewController {
         
         var content = cell.defaultContentConfiguration()
         
-        content.text = categories?[indexPath.row].name ?? "No categories added yet"
+        let category = categories?[indexPath.row]
+        
+        content.text = category?.name ?? "No categories added yet"
+        cell.backgroundColor = UIColor(hexString: category?.colour ?? "1D9BF6")
         
         cell.contentConfiguration = content
         

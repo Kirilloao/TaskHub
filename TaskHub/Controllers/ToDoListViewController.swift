@@ -10,6 +10,7 @@ import UIKit
 import SnapKit
 import RealmSwift
 import SwipeCellKit
+import ChameleonFramework
 
 final class ToDoListViewController: SwiftTableViewController {
     
@@ -90,6 +91,7 @@ final class ToDoListViewController: SwiftTableViewController {
     // MARK: - Private Methods
     private func setupTableView() {
         tableView.register(SwipeTableViewCell.self, forCellReuseIdentifier: "cell")
+        tableView.separatorStyle = .none
         
     }
     
@@ -153,6 +155,22 @@ extension ToDoListViewController {
         
         if let item = items?[indexPath.row] {
             content.text = item.title
+            
+            /*
+             Устанавливаем яркость цвета в зависимости от текущего индекса ячейки
+             разделенного на общее количество ячеек в массиве. От этого первая
+             ячейка будет яркого цвета, и далее ячейки будет темнеть.
+             Так же мы передаем в ячейку цвет из текущей категории.
+             */
+            if let colour = UIColor(hexString: selectedCategory!.colour)?.darken(byPercentage: CGFloat(indexPath.row) / CGFloat(items!.count)) {
+                cell.backgroundColor = colour
+                /*
+                 Этот меняем цвет текста в зависимости от цвета ячейки. Цвет текста
+                 становится светлее на темном фоне.
+                 */
+                content.textProperties.color = ContrastColorOf(colour, returnFlat: true)
+            }
+            
             cell.accessoryType = item.isDone ? .checkmark : .none
         } else {
             content.text = "No Items Added"

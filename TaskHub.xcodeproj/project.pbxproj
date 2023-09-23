@@ -20,6 +20,7 @@
 		3CB28A832AB8D5C1000E2AEB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3CB28A822AB8D5C1000E2AEB /* Assets.xcassets */; };
 		3CB28A862AB8D5C1000E2AEB /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3CB28A842AB8D5C1000E2AEB /* LaunchScreen.storyboard */; };
 		3CB28A962AB99090000E2AEB /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 3CB28A952AB99090000E2AEB /* SnapKit */; };
+		56A23B57D92A5B80C0872B03 /* Pods_TaskHub.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 42C5772ECBD44B1E6B61AFC7 /* Pods_TaskHub.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -34,6 +35,9 @@
 		3CB28A822AB8D5C1000E2AEB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		3CB28A852AB8D5C1000E2AEB /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		3CB28A872AB8D5C1000E2AEB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		42C5772ECBD44B1E6B61AFC7 /* Pods_TaskHub.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TaskHub.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		6D07281D57CB99C361F30F71 /* Pods-TaskHub.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TaskHub.debug.xcconfig"; path = "Target Support Files/Pods-TaskHub/Pods-TaskHub.debug.xcconfig"; sourceTree = "<group>"; };
+		A41ECE9DC86E35EFD6143BCD /* Pods-TaskHub.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TaskHub.release.xcconfig"; path = "Target Support Files/Pods-TaskHub/Pods-TaskHub.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -45,17 +49,38 @@
 				3C2965702ABC8D6A00F23F26 /* RealmSwift in Frameworks */,
 				3C29656E2ABC8D6A00F23F26 /* Realm in Frameworks */,
 				3CB28A962AB99090000E2AEB /* SnapKit in Frameworks */,
+				56A23B57D92A5B80C0872B03 /* Pods_TaskHub.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		14E62F71FEBA82889C497A4E /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				6D07281D57CB99C361F30F71 /* Pods-TaskHub.debug.xcconfig */,
+				A41ECE9DC86E35EFD6143BCD /* Pods-TaskHub.release.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
+			sourceTree = "<group>";
+		};
+		31679804EB025A25B9D40D48 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				42C5772ECBD44B1E6B61AFC7 /* Pods_TaskHub.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		3CB28A6D2AB8D5C0000E2AEB = {
 			isa = PBXGroup;
 			children = (
 				3CB28A782AB8D5C0000E2AEB /* TaskHub */,
 				3CB28A772AB8D5C0000E2AEB /* Products */,
+				14E62F71FEBA82889C497A4E /* Pods */,
+				31679804EB025A25B9D40D48 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -123,9 +148,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 3CB28A8A2AB8D5C1000E2AEB /* Build configuration list for PBXNativeTarget "TaskHub" */;
 			buildPhases = (
+				859A6CFBE641976E437903D1 /* [CP] Check Pods Manifest.lock */,
 				3CB28A722AB8D5C0000E2AEB /* Sources */,
 				3CB28A732AB8D5C0000E2AEB /* Frameworks */,
 				3CB28A742AB8D5C0000E2AEB /* Resources */,
+				0F86AE3155EFF0E7ABF30EBB /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -167,8 +194,8 @@
 			);
 			mainGroup = 3CB28A6D2AB8D5C0000E2AEB;
 			packageReferences = (
-				3CB28A942AB99090000E2AEB /* XCRemoteSwiftPackageReference "SnapKit" */,
-				3C29656C2ABC8D6A00F23F26 /* XCRemoteSwiftPackageReference "realm-swift" */,
+				3CB28A942AB99090000E2AEB /* XCRemoteSwiftPackageReference "SnapKit.git" */,
+				3C29656C2ABC8D6A00F23F26 /* XCRemoteSwiftPackageReference "realm-swift.git" */,
 				3C2965772ABDA05B00F23F26 /* XCRemoteSwiftPackageReference "SwipeCellKit" */,
 			);
 			productRefGroup = 3CB28A772AB8D5C0000E2AEB /* Products */;
@@ -191,6 +218,48 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		0F86AE3155EFF0E7ABF30EBB /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-TaskHub/Pods-TaskHub-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-TaskHub/Pods-TaskHub-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-TaskHub/Pods-TaskHub-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		859A6CFBE641976E437903D1 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-TaskHub-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		3CB28A722AB8D5C0000E2AEB /* Sources */ = {
@@ -337,6 +406,7 @@
 		};
 		3CB28A8B2AB8D5C1000E2AEB /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 6D07281D57CB99C361F30F71 /* Pods-TaskHub.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -364,6 +434,7 @@
 		};
 		3CB28A8C2AB8D5C1000E2AEB /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = A41ECE9DC86E35EFD6143BCD /* Pods-TaskHub.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -413,7 +484,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		3C29656C2ABC8D6A00F23F26 /* XCRemoteSwiftPackageReference "realm-swift" */ = {
+		3C29656C2ABC8D6A00F23F26 /* XCRemoteSwiftPackageReference "realm-swift.git" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/realm/realm-swift.git";
 			requirement = {
@@ -429,7 +500,7 @@
 				minimumVersion = 2.0.0;
 			};
 		};
-		3CB28A942AB99090000E2AEB /* XCRemoteSwiftPackageReference "SnapKit" */ = {
+		3CB28A942AB99090000E2AEB /* XCRemoteSwiftPackageReference "SnapKit.git" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/SnapKit/SnapKit.git";
 			requirement = {
@@ -442,12 +513,12 @@
 /* Begin XCSwiftPackageProductDependency section */
 		3C29656D2ABC8D6A00F23F26 /* Realm */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 3C29656C2ABC8D6A00F23F26 /* XCRemoteSwiftPackageReference "realm-swift" */;
+			package = 3C29656C2ABC8D6A00F23F26 /* XCRemoteSwiftPackageReference "realm-swift.git" */;
 			productName = Realm;
 		};
 		3C29656F2ABC8D6A00F23F26 /* RealmSwift */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 3C29656C2ABC8D6A00F23F26 /* XCRemoteSwiftPackageReference "realm-swift" */;
+			package = 3C29656C2ABC8D6A00F23F26 /* XCRemoteSwiftPackageReference "realm-swift.git" */;
 			productName = RealmSwift;
 		};
 		3C2965782ABDA05B00F23F26 /* SwipeCellKit */ = {
@@ -457,7 +528,7 @@
 		};
 		3CB28A952AB99090000E2AEB /* SnapKit */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 3CB28A942AB99090000E2AEB /* XCRemoteSwiftPackageReference "SnapKit" */;
+			package = 3CB28A942AB99090000E2AEB /* XCRemoteSwiftPackageReference "SnapKit.git" */;
 			productName = SnapKit;
 		};
 /* End XCSwiftPackageProductDependency section */
